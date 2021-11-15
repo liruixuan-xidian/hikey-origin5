@@ -8,6 +8,9 @@
 #include <linux/completion.h>
 #include <linux/types.h>
 
+#ifndef CONFIG_AMLOGIC_MODIFY
+#define CONFIG_AMLOGIC_MODIFY 1
+#endif
 struct mmc_data;
 struct mmc_request;
 

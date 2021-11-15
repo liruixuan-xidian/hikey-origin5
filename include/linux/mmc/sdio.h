@@ -13,6 +13,9 @@
 #define SD_IO_RW_DIRECT            52 /* ac   [31:0] See below   R5  */
 #define SD_IO_RW_EXTENDED          53 /* adtc [31:0] See below   R5  */
 
+#ifndef CONFIG_AMLOGIC_MODIFY
+#define CONFIG_AMLOGIC_MODIFY 1
+#endif
 /*
  * SD_IO_RW_DIRECT argument format:
  *

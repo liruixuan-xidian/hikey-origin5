@@ -8,6 +8,9 @@
 #ifndef LINUX_MMC_SD_H
 #define LINUX_MMC_SD_H
 
+#ifndef CONFIG_AMLOGIC_MODIFY
+#define CONFIG_AMLOGIC_MODIFY 1
+#endif
 /* SD commands                           type  argument     response */
   /* class 0 */
 /* This is basically the same command as for MMC with some quirks. */

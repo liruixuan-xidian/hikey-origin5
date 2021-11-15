@@ -26,6 +26,10 @@
 
 #include <linux/types.h>
 
+#ifndef CONFIG_AMLOGIC_MODIFY
+#define CONFIG_AMLOGIC_MODIFY 1
+#endif
+
 /* Standard MMC commands (4.1)           type  argument     response */
    /* class 1 */
 #define MMC_GO_IDLE_STATE         0   /* bc                          */

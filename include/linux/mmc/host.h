@@ -18,6 +18,7 @@
 #include <linux/keyslot-manager.h>
 #include <linux/android_kabi.h>
 
+#define CONFIG_AMLOIGC_MODIFY 1
 struct mmc_ios {
 	unsigned int	clock;			/* clock rate */
 	unsigned short	vdd;
@@ -292,6 +293,8 @@ struct mmc_host {
 	u32			ocr_avail_sdio;	/* SDIO-specific OCR */
 	u32			ocr_avail_sd;	/* SD-specific OCR */
 	u32			ocr_avail_mmc;	/* MMC-specific OCR */
+	u8          first_init_flag;
+	unsigned int capacity;
 	u32			max_current_330;
 	u32			max_current_300;
 	u32			max_current_180;

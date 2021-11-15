@@ -216,6 +216,7 @@ EXPORT_SYMBOL(mmc_request_done);
 
 static void __mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 {
+#ifndef CONFIG_MMC_MESON_GX
 	int err;
 
 	/* Assumes host controller has been runtime resumed by mmc_claim_host */
@@ -225,7 +226,7 @@ static void __mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 		mmc_request_done(host, mrq);
 		return;
 	}
-
+#endif
 	/*
 	 * For sdio rw commands we must wait for card busy otherwise some
 	 * sdio devices won't work properly.
@@ -954,14 +955,11 @@ int mmc_execute_tuning(struct mmc_card *card)
 
 	err = host->ops->execute_tuning(host, opcode);
 
-	if (err) {
+	if (err)
 		pr_err("%s: tuning execution failed: %d\n",
 			mmc_hostname(host), err);
-	} else {
-		host->retune_now = 0;
-		host->need_retune = 0;
+	else
 		mmc_retune_enable(host);
-	}
 
 	return err;
 }
@@ -2172,7 +2170,9 @@ EXPORT_SYMBOL(mmc_sw_reset);
 static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 {
 	host->f_init = freq;
-
+#ifdef CONFIG_AMLOGIC_MODIFY
+	host->first_init_flag = 1;
+#endif
 	pr_debug("%s: %s: trying to init card at %u Hz\n",
 		mmc_hostname(host), __func__, host->f_init);
 
@@ -2288,14 +2288,19 @@ void mmc_rescan(struct work_struct *work)
 		container_of(work, struct mmc_host, detect.work);
 	int i;
 
+	pr_info("~~~~~~~mmc_rescan~~~~~%s, rescan disable%d\n", mmc_hostname(host), host->rescan_disable);
 	if (host->rescan_disable)
 		return;
 
+	pr_info("~~~~~~~mmc_rescan~~~~~~%s, %d, %d\n", mmc_hostname(host),
+			mmc_card_is_removable(host),
+			host->rescan_entered);
 	/* If there is a non-removable card registered, only scan once */
 	if (!mmc_card_is_removable(host) && host->rescan_entered)
 		return;
 	host->rescan_entered = 1;
-
+	
+	pr_info("~~~~~~~~mmc_rescan~~~~~~%s\n", mmc_hostname(host));
 	if (host->trigger_card_event && host->ops->card_event) {
 		mmc_claim_host(host);
 		host->ops->card_event(host);
@@ -2331,13 +2336,18 @@ void mmc_rescan(struct work_struct *work)
 	mmc_bus_put(host);
 
 	mmc_claim_host(host);
+	pr_info("~~~~~~~~%s, %d\n", __func__, __LINE__);
+	pr_info("~~~~~~~~%s removebale is %d\n", mmc_hostname(host), 
+			mmc_card_is_removable(host));
 	if (mmc_card_is_removable(host) && host->ops->get_cd &&
 			host->ops->get_cd(host) == 0) {
 		mmc_power_off(host);
 		mmc_release_host(host);
+		pr_info("~~~~~~~~power off~~~~~~%s\n", mmc_hostname(host));
 		goto out;
 	}
 
+	pr_info("~~~~~~~~%s, %d\n", __func__, __LINE__);
 	for (i = 0; i < ARRAY_SIZE(freqs); i++) {
 		if (!mmc_rescan_try_freq(host, max(freqs[i], host->f_min)))
 			break;

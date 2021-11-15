@@ -11,6 +11,10 @@
 #include <linux/mod_devicetable.h>
 #include <linux/android_kabi.h>
 
+#ifndef CONFIG_AMLOGIC_MODIFY
+#define CONFIG_AMLOGIC_MODIFY 1
+#endif
+
 struct mmc_cid {
 	unsigned int		manfid;
 	char			prod_name[8];
